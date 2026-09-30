@@ -1,0 +1,7 @@
+# 장애물 목록 — 한 줄에 하나. 비운 칸은 기본값 (box 3x6x3 m, 방향 = 공터 짧은 변 / cylinder r 0.8 m, h 20 m)
+# yaw_deg = 박스 긴 쪽(length) 방향, 북에서 시계방향 [deg]
+type,lat,lon,yaw_deg,width,length,height,radius
+box,37.3846687,126.6541205,,,,,
+box,37.3846173,126.6539944,,,,,
+box,37.3845564,126.6541661,,,,,
+cylinder,37.3847271,126.6539560,,,,,

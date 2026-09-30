@@ -4,7 +4,7 @@
 한 흐름으로 돌리는 도구 모음.
 
 ```
-1. python3 make_heightmap.py     장애물(박스 3·원통 1) 위경도 입력 → 장애물 heightmap
+1. python3 make_heightmap.py     obstacles.csv (장애물 위경도·크기) → 장애물 heightmap
 2. ./run_pp.sh                   출발·도착·경유점 위경도 입력 → Hybrid PP 경로 (NED 경유점)
                                  → offboard/position_offboard_test/config/ 에 자동 저장
 3. ros2 run position_offboard_test pp_waypoint_offboard
@@ -33,22 +33,32 @@ A4VAI 워크스페이스의 `pathplanning/vendor/hybrid_learning_path_planning-0
 
 ---
 
-## 1. 장애물 넣기 — `make_heightmap.py`
+## 1. 장애물 넣기 — `obstacles.csv` + `make_heightmap.py`
+
+장애물을 `obstacles.csv` 에 한 줄에 하나씩 적고 실행한다.
 
 ```bash
-python3 make_heightmap.py
+python3 make_heightmap.py                              # 레포 최상위 obstacles.csv
+python3 make_heightmap.py examples/ex3_wall/obstacles.csv   # 다른 파일
 ```
 
-박스 3개, 원통 1개의 **중심 위경도**를 차례로 묻는다 (`37.38451, 126.65418` 또는 띄어쓰기).
+```csv
+type,lat,lon,yaw_deg,width,length,height,radius
+box,37.3846687,126.6541205,,,,,
+box,37.3846173,126.6539944,90,4,10,5,
+cylinder,37.3847271,126.6539560,,,,20,0.8
+```
 
-| 장애물 | 크기 | 방향 |
+| 열 | 뜻 | 비우면 |
 |---|---|---|
-| 박스 | 폭 3 m × 길이 6 m × 높이 3 m | 긴 쪽이 공터 짧은 변 방향 (약 37°) |
-| 원통 | 반지름 0.8 m, 높이 20 m | — |
+| `type` | `box`(직사각형) 또는 `cylinder`(원통). `박스`, `원통` 도 됨 | 필수 |
+| `lat`, `lon` | 장애물 중심 위경도 | 필수 |
+| `yaw_deg` | 박스 긴 쪽(length) 방향, 북에서 시계방향 [deg] | 공터 짧은 변 방향 (약 37°) |
+| `width`, `length`, `height` | 박스 폭·길이·높이 [m] | 3, 6, 3 |
+| `radius`, `height` | 원통 반지름·높이 [m] | 0.8, 20 |
 
-크기·개수·방향은 파일 위쪽 상수(`N_BOX`, `BOX_SIZE`, `BOX_YAW_DEG`, `N_CYL`, `CYL_R`, `CYL_H`)에서 바꾼다.
-결과는 `out/heightmap_px.npy`, `out/obstacles.json`, `out/preview.png`.
-기본 지도(건물만)로 돌아가려면 `out/` 을 지운다.
+개수 제한은 없고, `#` 로 시작하는 줄은 주석이다. 결과는 `out/heightmap_px.npy`, `out/obstacles.json`, `out/preview.png`.
+공터 밖에 찍힌 장애물은 "확인 필요" 로 알려준다. 기본 지도(건물만)로 돌아가려면 `out/` 을 지운다.
 
 ## 2. 경로 계획 — `run_pp.sh`
 
@@ -147,5 +157,5 @@ PX4 SITL + uXRCE-DDS 가 떠 있는 ROS 2 컨테이너(기본 `ros2-env`)에서 
 | `ex3_wall` | 박스 3개를 이어 18 m 벽 → 넘어가는 게 최적 |
 | `sitl_*` | 위 경로를 SITL 에서 비행한 기록 (횡오차 최대 0.35~0.48 m) |
 
-배치 재현: `python3 make_heightmap.py examples/ex1_wp4/obstacles.json` (그다음 `./run_pp.sh` 에 같은 위경도 입력,
+배치 재현: `python3 make_heightmap.py examples/ex1_wp4/obstacles.csv` (그다음 `./run_pp.sh` 에 같은 위경도 입력,
 미션 위경도는 각 폴더 `pp_result.json` 의 `mission_latlon`). `drawing.png` 는 배치를 정할 때 그린 스케치.
