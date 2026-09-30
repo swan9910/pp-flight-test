@@ -1,0 +1,15 @@
+{
+ "flight_s": 48.87000012397766,
+ "plan_length_m": 57.75490461915628,
+ "xt_mean_m": 0.1768706719085475,
+ "xt_max_m": 0.699388378738762,
+ "alt_err_mean_m": 0.1509074074074076,
+ "alt_err_max_m": 0.4930000000000003,
+ "min_clearance_m": 1.7423551615686916,
+ "max_alt_m": 2.904,
+ "plan_alt_range_m": [
+  3.0,
+  3.0
+ ],
+ "controller": "PathFollowing"
+}

@@ -57,6 +57,11 @@ def main(run_dir, zoom=2):
           "plan_alt_range_m": [float(P[:, 2].min()), float(P[:, 2].max())]}
     json.dump(st, open(os.path.join(run_dir, "stats.json"), "w"), indent=1)
 
+    ctrl = ("PathFollowing" if os.path.exists(os.path.join(run_dir, "path_following_test.log"))
+            else "pp_waypoint_offboard")
+    st["controller"] = ctrl
+    json.dump(st, open(os.path.join(run_dir, "stats.json"), "w"), indent=1)
+
     # ── 평면도 ──
     base = os.path.join(run_dir, "_b.png"); m.plot([], base, zoom=zoom, connect=False)
     img = Image.open(base).convert("RGB"); os.remove(base); d = ImageDraw.Draw(img)
@@ -76,7 +81,7 @@ def main(run_dir, zoom=2):
         d.text((q[0] + 12, q[1] - 28), nm, font=f, fill=(255, 220, 0))
     W, Hi = img.size
     lines = [(f"{os.path.basename(os.path.normpath(run_dir))}", (255, 220, 0)),
-             ("흰 선: PP 계획 경로   빨간 선: SITL 실제 비행 (pp_waypoint_offboard)", (255, 255, 255)),
+             (f"흰 선: PP 계획 경로   빨간 선: SITL 실제 비행 ({ctrl})", (255, 255, 255)),
              (f"횡오차 평균 {st['xt_mean_m']:.2f} / 최대 {st['xt_max_m']:.2f} m   고도오차 최대 {st['alt_err_max_m']:.2f} m   "
               f"장애물 최소거리 {st['min_clearance_m']:.2f} m   비행 {st['flight_s']:.0f} s", (255, 255, 255))]
     for i, (txt, c) in enumerate(lines):

@@ -7,9 +7,15 @@
 1. python3 make_heightmap.py     obstacles.csv (장애물 위경도·크기) → 장애물 heightmap
 2. ./run_pp.sh                   출발·도착·경유점 위경도 입력 → Hybrid PP 경로 (NED 경유점)
                                  → offboard/position_offboard_test/config/ 에 자동 저장
-3. ros2 run position_offboard_test pp_waypoint_offboard
-                                 저장된 경로로 이륙 → 경로 추종 → 착륙
+3. 비행 — 두 가지 중 하나
+   A. ros2 run position_offboard_test pp_waypoint_offboard     PX4 위치 제어로 경로 추종
+   B. ./pf/run_pf_sitl.sh                                      A4VAI PathFollowing(PF) 로 경로 추종 (SITL)
 ```
+
+| 방식 | 제어 | 필요한 것 | SITL 결과 (경유점 4개, 106.7 m) |
+|---|---|---|---|
+| A. 오프보드 노드 | PX4 위치 제어기에 목표점을 끌고 감 | ROS 2 + px4_msgs | 횡오차 평균 0.10 / 최대 0.35 m, 96 s |
+| B. PathFollowing | PF 가 자세 명령 생성 (guid_type 0) | PX4-SITL-Runner (PF 빌드됨) | 횡오차 평균 0.21 / 최대 0.76 m, 70 s |
 
 ---
 
@@ -117,7 +123,29 @@ ros2 run position_offboard_test pp_waypoint_offboard
 **실비행은 RC 오버라이드 가능한 안전 조종사, PX4 페일세이프, 지오펜스, 킬 스위치가 필수.**
 이 노드는 보조 안전장치일 뿐이다.
 
-## SITL 시험 — `sitl/sitl_fly.sh`
+## 3-B. PathFollowing 으로 비행 — `pf/run_pf_sitl.sh`
+
+오프보드 노드 대신 A4VAI PathFollowing(PF) 이 PP 경로를 따라간다. 인하우스 SITL(JOCIIIII/PX4-SITL-Runner)에서 돈다.
+
+```bash
+./run_pp.sh                          # 경로 계획 (out/)
+./pf/run_pf_sitl.sh                  # out/ 의 경로를 PF 로 비행 → sitl/logs/pf_<날짜시각>/
+./pf/run_pf_sitl.sh out my_pf_test   # 이름 지정
+```
+
+하는 일:
+1. `pf/make_pf_csv.py` 가 PP 결과를 PF 경유점 CSV(`x`=북, `y`=동, `z`=고도, 첫 줄 = 출발·이륙 고도)로 바꿔
+   `~/Documents/A4VAI-SITL/ROS2/pp_mission/pf_wp.csv` 에 둔다.
+2. `pf/pp_pf.sh` 를 러너 앱으로 잠시 복사하고 `ROS2_APP="pp_pf"`, 기체 iris 로 SITL 을 띄운다.
+   `path_following_test` 가 시동·이륙·착륙을 맡고, PF(`node_pathfollowing`)가 경로를 따라간다.
+   유도는 `guid_type 0`(위치 유도). MPPI(`guid_type 2`)는 90° 코너에서 멈추는 문제가 있어 쓰지 않는다.
+3. 착륙하면 SITL 을 끄고, 러너 설정(`envs/ros2.env`, `gazebo-classic.env`)과 앱 파일을 원래대로 되돌린다.
+4. `sitl/logs/<이름>/` 에 궤적, PF 로그, 계획 대비 그림(`result.png`), 지표(`stats.json`)를 남긴다.
+
+러너 위치가 다르면 `RUNNER=... DEPLOY=... ./pf/run_pf_sitl.sh`. 이미 SITL 이 떠 있으면 시작하지 않는다.
+PF 는 x500 설정(`pf_config/x500`, lookahead 4.5 m, 1.5 m/s)을 쓴다.
+
+## SITL 시험 (오프보드 노드) — `sitl/sitl_fly.sh`
 
 PX4 SITL + uXRCE-DDS 가 떠 있는 ROS 2 컨테이너(기본 `ros2-env`)에서 위 노드로 비행하고 궤적을 기록한다.
 
@@ -155,7 +183,8 @@ PX4 SITL + uXRCE-DDS 가 떠 있는 ROS 2 컨테이너(기본 `ros2-env`)에서 
 | `ex0_zigzag_zmax5`, `ex0_zigzag_zmax7` | 같은 배치, 최대 고도 5 m(옆으로 돎) / 7 m(박스 끝을 넘음) |
 | `ex1_wp4` | 같은 배치, 경유점 4개 (106.7 m, 3 m 고도) |
 | `ex3_wall` | 박스 3개를 이어 18 m 벽 → 넘어가는 게 최적 |
-| `sitl_*` | 위 경로를 SITL 에서 비행한 기록 (횡오차 최대 0.35~0.48 m) |
+| `sitl_wp4`, `sitl_zigzag_*` | 오프보드 노드로 SITL 비행한 기록 (횡오차 최대 0.35~0.48 m) |
+| `sitl_pf_wp4`, `sitl_pf_zigzag_zmax5` | 같은 경로를 PathFollowing 으로 SITL 비행한 기록 (횡오차 최대 0.70~0.76 m) |
 
 배치 재현: `python3 make_heightmap.py examples/ex1_wp4/obstacles.csv` (그다음 `./run_pp.sh` 에 같은 위경도 입력,
 미션 위경도는 각 폴더 `pp_result.json` 의 `mission_latlon`). `drawing.png` 는 배치를 정할 때 그린 스케치.
