@@ -1,0 +1,48 @@
+[INFO] [1790749266.716294738] [pp_waypoint_offboard]: PP waypoint offboard node started
+[INFO] [1790749266.716779906] [pp_waypoint_offboard]: csv=/tmp/ofb_mission.csv (4 wps) alt=3.0m speed=1.5m/s lead=2.0m tol=0.3m
+[INFO] [1790749266.717184865] [pp_waypoint_offboard]:   WP1: N   +2.72  E  -12.27  alt  4.00 m
+[INFO] [1790749266.717703476] [pp_waypoint_offboard]:   WP2: N   +7.45  E  -16.84  alt  4.00 m
+[INFO] [1790749266.718242215] [pp_waypoint_offboard]:   WP3: N  +24.27  E  -30.05  alt  7.00 m
+[INFO] [1790749266.718588002] [pp_waypoint_offboard]:   WP4: N  +33.70  E  -42.73  alt  3.00 m
+[INFO] [1790749266.869307332] [pp_waypoint_offboard]: path length 57.1 m, 4 legs
+[INFO] [1790749266.869787020] [pp_waypoint_offboard]: start: x=67.64 y=-85.60 z=-0.12 heading=139.0 deg
+[INFO] [1790749268.770418857] [pp_waypoint_offboard]: State -> ARMING
+[INFO] [1790749268.869552837] [pp_waypoint_offboard]: State -> TAKEOFF
+[INFO] [1790749276.569643993] [pp_waypoint_offboard]: State -> FOLLOW
+[INFO] [1790749285.069421562] [pp_waypoint_offboard]: carrot at WP1/4 (N +2.7 E -12.3 alt 4.0)
+[INFO] [1790749289.369589242] [pp_waypoint_offboard]: carrot at WP2/4 (N +7.5 E -16.8 alt 4.0)
+[INFO] [1790749303.769965189] [pp_waypoint_offboard]: carrot at WP3/4 (N +24.3 E -30.1 alt 7.0)
+[INFO] [1790749314.669644984] [pp_waypoint_offboard]: carrot at WP4/4 (N +33.7 E -42.7 alt 3.0)
+[INFO] [1790749315.569307594] [pp_waypoint_offboard]: State -> HOVER
+[INFO] [1790749318.669193122] [pp_waypoint_offboard]: State -> LANDING
+[INFO] [1790749328.469241929] [pp_waypoint_offboard]: landed and disarmed - mission complete
+[INFO] [1790749328.469954189] [pp_waypoint_offboard]: State -> DONE
+Traceback (most recent call last):
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 371, in main
+    rclpy.spin(node)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 380, in <module>
+    main()
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 376, in main
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241

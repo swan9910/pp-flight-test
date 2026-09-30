@@ -1,0 +1,62 @@
+[INFO] [1790749892.403169563] [pp_waypoint_offboard]: PP waypoint offboard node started
+[INFO] [1790749892.403822264] [pp_waypoint_offboard]: csv=/tmp/ofb_mission.csv (11 wps) alt=3.0m speed=1.5m/s lead=2.0m tol=0.3m
+[INFO] [1790749892.404282584] [pp_waypoint_offboard]:   WP1: N   +2.72  E  -12.27  alt  3.00 m
+[INFO] [1790749892.404762140] [pp_waypoint_offboard]:   WP2: N   +7.45  E  -16.84  alt  3.00 m
+[INFO] [1790749892.405195430] [pp_waypoint_offboard]:   WP3: N  +11.21  E  -16.12  alt  3.00 m
+[INFO] [1790749892.405617890] [pp_waypoint_offboard]:   WP4: N  +23.22  E   -9.73  alt  3.00 m
+[INFO] [1790749892.406000055] [pp_waypoint_offboard]:   WP5: N  +26.16  E   -9.01  alt  3.00 m
+[INFO] [1790749892.406382409] [pp_waypoint_offboard]:   WP6: N  +27.42  E  -14.81  alt  3.00 m
+[INFO] [1790749892.406820438] [pp_waypoint_offboard]:   WP7: N  +21.64  E  -25.99  alt  3.00 m
+[INFO] [1790749892.407194838] [pp_waypoint_offboard]:   WP8: N  +13.63  E  -34.74  alt  3.00 m
+[INFO] [1790749892.407632316] [pp_waypoint_offboard]:   WP9: N  +27.24  E  -24.73  alt  3.00 m
+[INFO] [1790749892.408041170] [pp_waypoint_offboard]:   WP10: N  +31.62  E  -29.54  alt  3.00 m
+[INFO] [1790749892.408414538] [pp_waypoint_offboard]:   WP11: N  +33.70  E  -42.73  alt  3.00 m
+[INFO] [1790749895.252079219] [pp_waypoint_offboard]: path length 106.7 m, 11 legs
+[INFO] [1790749895.252706702] [pp_waypoint_offboard]: start: x=168.46 y=-213.57 z=-0.18 heading=139.2 deg
+[INFO] [1790749897.152174489] [pp_waypoint_offboard]: State -> ARMING
+[INFO] [1790749897.251790976] [pp_waypoint_offboard]: State -> TAKEOFF
+[INFO] [1790749905.152020730] [pp_waypoint_offboard]: State -> FOLLOW
+[INFO] [1790749913.551962729] [pp_waypoint_offboard]: carrot at WP1/11 (N +2.7 E -12.3 alt 3.0)
+[INFO] [1790749917.952105857] [pp_waypoint_offboard]: carrot at WP2/11 (N +7.5 E -16.8 alt 3.0)
+[INFO] [1790749920.551685623] [pp_waypoint_offboard]: carrot at WP3/11 (N +11.2 E -16.1 alt 3.0)
+[INFO] [1790749929.551776159] [pp_waypoint_offboard]: carrot at WP4/11 (N +23.2 E -9.7 alt 3.0)
+[INFO] [1790749931.652091324] [pp_waypoint_offboard]: carrot at WP5/11 (N +26.2 E -9.0 alt 3.0)
+[INFO] [1790749935.652265840] [pp_waypoint_offboard]: carrot at WP6/11 (N +27.4 E -14.8 alt 3.0)
+[INFO] [1790749944.051970809] [pp_waypoint_offboard]: carrot at WP7/11 (N +21.6 E -26.0 alt 3.0)
+[INFO] [1790749951.951737222] [pp_waypoint_offboard]: carrot at WP8/11 (N +13.6 E -34.7 alt 3.0)
+[INFO] [1790749963.552157222] [pp_waypoint_offboard]: carrot at WP9/11 (N +27.2 E -24.7 alt 3.0)
+[INFO] [1790749967.851856226] [pp_waypoint_offboard]: carrot at WP10/11 (N +31.6 E -29.5 alt 3.0)
+[INFO] [1790749976.752037940] [pp_waypoint_offboard]: carrot at WP11/11 (N +33.7 E -42.7 alt 3.0)
+[INFO] [1790749977.752245683] [pp_waypoint_offboard]: State -> HOVER
+[INFO] [1790749980.852246024] [pp_waypoint_offboard]: State -> LANDING
+[INFO] [1790749993.651853166] [pp_waypoint_offboard]: landed and disarmed - mission complete
+[INFO] [1790749993.652534129] [pp_waypoint_offboard]: State -> DONE
+Traceback (most recent call last):
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 371, in main
+    rclpy.spin(node)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 229, in spin
+    executor.spin_once()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 808, in spin_once
+    self._spin_once_impl(timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 797, in _spin_once_impl
+    handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 780, in wait_for_ready_callbacks
+    return next(self._cb_iter)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/executors.py", line 681, in _wait_for_ready_callbacks
+    raise ExternalShutdownException()
+rclpy.executors.ExternalShutdownException
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 380, in <module>
+    main()
+  File "/tmp/ofb_ws/src/position_offboard_test/position_offboard_test/pp_waypoint_offboard.py", line 376, in main
+    rclpy.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/__init__.py", line 130, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/utilities.py", line 58, in shutdown
+    return context.shutdown()
+  File "/opt/ros/humble/local/lib/python3.10/dist-packages/rclpy/context.py", line 102, in shutdown
+    self.__context.shutdown()
+rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:241
