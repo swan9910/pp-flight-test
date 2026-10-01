@@ -38,6 +38,8 @@ def main(run_dir, zoom=2):
         return float(np.linalg.norm(q[k] - p)), float(P[k, 2] + tt[k] * (P[k + 1, 2] - P[k, 2]))
     zmin_plan = float(P[:, 2].min())
     cruise = fly & (U > zmin_plan - 0.5)
+    if not cruise.any():
+        sys.exit(f"순항 고도 구간 기록 없음 (비행 실패?) — 그림 생략: {run_dir}")
     res = np.array([nearest(np.array([e, n])) for e, n in zip(E[cruise], N[cruise])])
     xt, zplan = res[:, 0], res[:, 1]; zerr = np.abs(U[cruise] - zplan)
     H = m.H; ys, xs = np.nonzero(H > 0)
@@ -55,6 +57,11 @@ def main(run_dir, zoom=2):
           "alt_err_mean_m": float(zerr.mean()), "alt_err_max_m": float(zerr.max()),
           "min_clearance_m": float(clear.min()), "max_alt_m": float(U[fly].max()),
           "plan_alt_range_m": [float(P[:, 2].min()), float(P[:, 2].max())]}
+    json.dump(st, open(os.path.join(run_dir, "stats.json"), "w"), indent=1)
+
+    ctrl = ("PathFollowing" if os.path.exists(os.path.join(run_dir, "path_following_test.log"))
+            else "pp_waypoint_offboard")
+    st["controller"] = ctrl
     json.dump(st, open(os.path.join(run_dir, "stats.json"), "w"), indent=1)
 
     # ── 평면도 ──
@@ -76,7 +83,7 @@ def main(run_dir, zoom=2):
         d.text((q[0] + 12, q[1] - 28), nm, font=f, fill=(255, 220, 0))
     W, Hi = img.size
     lines = [(f"{os.path.basename(os.path.normpath(run_dir))}", (255, 220, 0)),
-             ("흰 선: PP 계획 경로   빨간 선: SITL 실제 비행 (pp_waypoint_offboard)", (255, 255, 255)),
+             (f"흰 선: PP 계획 경로   빨간 선: SITL 실제 비행 ({ctrl})", (255, 255, 255)),
              (f"횡오차 평균 {st['xt_mean_m']:.2f} / 최대 {st['xt_max_m']:.2f} m   고도오차 최대 {st['alt_err_max_m']:.2f} m   "
               f"장애물 최소거리 {st['min_clearance_m']:.2f} m   비행 {st['flight_s']:.0f} s", (255, 255, 255))]
     for i, (txt, c) in enumerate(lines):
