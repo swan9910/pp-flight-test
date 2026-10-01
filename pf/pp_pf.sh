@@ -20,11 +20,18 @@ source ${ROS2_WS}/install/setup.bash
 export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2
 
 PF_CFG=$(ros2 pkg prefix pathfollowing 2>/dev/null)/share/pathfollowing/config
-[ -d ${WORKSPACE_DIR}/pf_config/x500 ] && cp ${WORKSPACE_DIR}/pf_config/x500/sim.yaml ${WORKSPACE_DIR}/pf_config/x500/octo.yaml "$PF_CFG"/ \
-    && echo "[$(basename "$0")] PF config: x500 → $PF_CFG"
+# 러너의 x500 기본 설정을 쓰되, PF 버전과 형식이 맞을 때만 (0702 이후 PF 는 sim.yaml 에 safety: 섹션 필수).
+# 형식이 다르면 덮어쓰지 않고 패키지에 설치된 설정을 그대로 쓴다.
+X500=${WORKSPACE_DIR}/pf_config/x500
+if [ -d $X500 ] && { ! grep -q "^ *safety:" "$PF_CFG/sim.yaml" || grep -q "^ *safety:" $X500/sim.yaml; }; then
+    cp $X500/sim.yaml $X500/octo.yaml "$PF_CFG"/ && echo "[$(basename "$0")] PF config: x500 → $PF_CFG"
+else
+    echo "[$(basename "$0")] PF config: 설치된 설정 사용 ($X500 는 이 PF 버전과 형식이 달라 건너뜀)"
+fi
 echo "[$(basename "$0")] PP 경유점: $WP ($(($(wc -l < $WP) - 1)) 점)"
 
-ros2 run pathfollowing node_pathfollowing --ros-args -p vehicle_type:=1 -p guid_type:=0 2>&1 | tee ${LOGS}/node_pathfollowing.log &
+ros2 run pathfollowing node_pathfollowing --ros-args -p vehicle_type:=1 -p guid_type:=0 \
+    -r /fmu/out/vehicle_status:=/fmu/out/vehicle_status_v1 2>&1 | tee ${LOGS}/node_pathfollowing.log &
 ros2 run pathfollowing node_mppi --ros-args -p vehicle_type:=1 -p guid_type:=0 2>&1 | tee ${LOGS}/node_mppi.log &
 
 ros2 run path_following_test path_following_test --ros-args \

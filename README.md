@@ -145,6 +145,23 @@ ros2 run position_offboard_test pp_waypoint_offboard
 러너 위치가 다르면 `RUNNER=... DEPLOY=... ./pf/run_pf_sitl.sh`. 이미 SITL 이 떠 있으면 시작하지 않는다.
 PF 는 x500 설정(`pf_config/x500`, lookahead 4.5 m, 1.5 m/s)을 쓴다.
 
+### PF 버전
+
+| PF | 어디 | 5 m 지그재그 결과 (횡오차 평균 / 최대, 비행 시간) |
+|---|---|---|
+| 인하우스 심 기본 (JOCIIIII `bb87315`) | 러너에 들어 있는 그대로 | 0.18 / 0.70 m, 49 s (`examples/sitl_pf_zigzag_zmax5`) |
+| **lyj801 최신(0702) + 인하우스 패치** | [swan9910/A4VAI-PathFollowing `lyj0702-merge`](https://github.com/swan9910/A4VAI-PathFollowing/tree/lyj0702-merge) | 0.21 / 0.64 m, 47 s (`examples/sitl_pf_zigzag_zmax5_lyj0702`) |
+
+`lyj0702-merge` = lyj801/A4VAI-PathFollowing `4036051`(안전 가드 `safety_guard.py`, 목표 속도 램프)에
+인하우스 패치(`px4_ns`, 재계획 시 경로 재위치화, `/desired_speed` 토픽, `wp_type 0`)를 합친 것.
+쓰려면 러너 워크스페이스 `ROS2/ros2_ws/src/A4VAI-PathFollowing` 을 이 브랜치로 바꾸고 `pathfollowing` 을 다시 설치한다.
+- 0702 부터 PF 가 `/fmu/out/vehicle_status` 를 구독한다. 인하우스 심(PX4 1.16)은 `vehicle_status_v1` 이라
+  `pp_pf.sh` 가 리맵한다 (안 하면 오프보드 상태를 모르고 램프가 최저 속도 0.5 m/s 에 머문다).
+- 0702 `sim.yaml` 은 `safety:` 섹션이 필수다. 러너의 `pf_config/x500/sim.yaml` 은 예전 형식이라
+  `pp_pf.sh` 는 형식이 맞을 때만 그 파일을 덮어쓰고, 아니면 패키지에 설치된 설정을 쓴다.
+- `[SAFETY] WARN HEARTBEAT_STALE:controller` 가 1 초마다 찍히지만 경고뿐이고 비행에는 영향 없다
+  (`path_following_test` 의 하트비트 주기가 안전 가드 기준보다 느림).
+
 ## SITL 시험 (오프보드 노드) — `sitl/sitl_fly.sh`
 
 PX4 SITL + uXRCE-DDS 가 떠 있는 ROS 2 컨테이너(기본 `ros2-env`)에서 위 노드로 비행하고 궤적을 기록한다.
@@ -185,6 +202,8 @@ PX4 SITL + uXRCE-DDS 가 떠 있는 ROS 2 컨테이너(기본 `ros2-env`)에서 
 | `ex3_wall` | 박스 3개를 이어 18 m 벽 → 넘어가는 게 최적 |
 | `sitl_wp4`, `sitl_zigzag_*` | 오프보드 노드로 SITL 비행한 기록 (횡오차 최대 0.35~0.48 m) |
 | `sitl_pf_wp4`, `sitl_pf_zigzag_zmax5` | 같은 경로를 PathFollowing 으로 SITL 비행한 기록 (횡오차 최대 0.70~0.76 m) |
+| `sitl_pf_zigzag_zmax5_lyj0702` | 5 m 지그재그를 lyj801 최신 PF(`lyj0702-merge`)로 비행 (횡오차 최대 0.64 m) |
+| `compare_offboard_vs_pf_wp4.png` | 경유점 4개 경로, 오프보드 노드 vs PF 비교 |
 
 배치 재현: `python3 make_heightmap.py examples/ex1_wp4/obstacles.csv` (그다음 `./run_pp.sh` 에 같은 위경도 입력,
 미션 위경도는 각 폴더 `pp_result.json` 의 `mission_latlon`). `drawing.png` 는 배치를 정할 때 그린 스케치.

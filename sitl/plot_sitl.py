@@ -38,6 +38,8 @@ def main(run_dir, zoom=2):
         return float(np.linalg.norm(q[k] - p)), float(P[k, 2] + tt[k] * (P[k + 1, 2] - P[k, 2]))
     zmin_plan = float(P[:, 2].min())
     cruise = fly & (U > zmin_plan - 0.5)
+    if not cruise.any():
+        sys.exit(f"순항 고도 구간 기록 없음 (비행 실패?) — 그림 생략: {run_dir}")
     res = np.array([nearest(np.array([e, n])) for e, n in zip(E[cruise], N[cruise])])
     xt, zplan = res[:, 0], res[:, 1]; zerr = np.abs(U[cruise] - zplan)
     H = m.H; ys, xs = np.nonzero(H > 0)
